@@ -580,7 +580,7 @@ Description=Surveillance des logs avec IA
 After=network.target
 
 [Service]
-User=root  # Remplacez par l'utilisateur ayant accès aux logs
+User=root
 ExecStart=/usr/bin/python3 /home/"$USERNAME"/LogIAnalyzer/logianalyzer.py
 Restart=always
 
