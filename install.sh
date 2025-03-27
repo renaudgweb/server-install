@@ -391,8 +391,6 @@ ufw_install() {
 }
 
 sendmail_install() {
-	whereis sendmail
-	ls -la /usr/sbin/sendmail
 	sudo chmod 644 /etc/ssmtp/ssmtp.conf
 	sudo chown root:mail /usr/sbin/ssmtp /etc/ssmtp{,/{ssmtp.conf,revaliases}}
 	sudo chmod 2711 /usr/sbin/ssmtp
