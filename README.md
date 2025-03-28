@@ -1,7 +1,7 @@
 # 🚀 Installation Automatisée d'un Serveur Web L.A.M.P. sur Raspberry Pi
 
 <p align="center">
-  <img src="tux-server.jpg" alt="Admin Tux logo" width="300"/>
+  <img src="tux-server.jpg" alt="Admin Tux logo" width="600"/>
 </p>
 
 <p align="center">
