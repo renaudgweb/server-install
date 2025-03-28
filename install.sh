@@ -15,11 +15,11 @@ log_action() {
 exec > >(tee -a "$LOGFILE") 2>&1
 
 # Vérifier si le script est exécuté avec les privilèges root
-if [ "$(id -u)" -ne 0 ]; then
-	log_action "❌ Ce script doit être exécuté avec les privilèges root."
-	echo "❌ Ce script doit être exécuté avec les privilèges root."
-    exit 1
-fi
+# if [ "$(id -u)" -ne 0 ]; then
+# 	log_action "❌ Ce script doit être exécuté avec les privilèges root."
+# 	echo "❌ Ce script doit être exécuté avec les privilèges root."
+#     exit 1
+# fi
 
 # Quitte le programme si une commande échoue
 set -o errexit
@@ -730,8 +730,11 @@ prompt_choice() {
 # Demande initiale pour commencer l'installation
 prompt_choice "Voulez-vous continuer ? [Y]es✔️, ou [N]o❌ : " && main_install
 
+# Message rappelant les tâches manuelles avec couleur
+printf "\e[31m⚠️ Rappel ⚠️\e[0m\n  \e[33m- Restaurer la base de données\n  - Changer l'ID du bot Nextcloud\e[0m\n"
+
 while true; do
-    echo "Installation terminée 🚀. [R]ebooter ou [Q]uitter ?"
+    printf "\e[32mInstallation terminée 🚀 [R]ebooter ou [Q]uitter ?\e[0m\n"
     read -r REPLY
     case $REPLY in
         [Rr]* ) sudo reboot; break;;

@@ -1,5 +1,14 @@
 # 🚀 Installation Automatisée d'un Serveur Web L.A.M.P. sur Raspberry Pi
 
+<p align="center">
+  <img src="tux-server.jpg" alt="Admin Tux logo" width="300"/>
+</p>
+
+<p align="center">
+  <a href="https://github.com/renaudgweb/server-install/blob/main/LICENSE"><img src="https://img.shields.io/badge/License-MIT-blue.svg" alt="License: MIT"></a>
+  <a href="https://www.gnu.org/software/bash/"><img src="https://img.shields.io/badge/Made%20with-Bash-1f425f.svg" alt="made-with-bash"></a>
+</p>
+
 Ce script Bash automatise l'installation d'un serveur Web sur un Raspberry Pi fonctionnant sous Raspberry Pi OS. Il installe L.A.M.P. (Linux, Apache, MySQL, PHP) ainsi que d'autres paquets, configure les paramètres de base et démarre les services, permettant ainsi aux utilisateurs d'héberger leurs propres sites Web. 🌍💻
 
 ## ✅ Prérequis
@@ -32,7 +41,7 @@ Assurez-vous d'avoir :
 5. **Exécutez le script d'installation** :
 
    ```bash
-   sudo ./install.sh
+./install.sh
    ```
 
 6. **Suivez les instructions à l'écran** pour terminer le processus d'installation. ✅
