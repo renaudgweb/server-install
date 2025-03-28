@@ -41,7 +41,7 @@ Assurez-vous d'avoir :
 5. **Exécutez le script d'installation** :
 
    ```bash
-./install.sh
+   ./install.sh
    ```
 
 6. **Suivez les instructions à l'écran** pour terminer le processus d'installation. ✅
