@@ -71,7 +71,7 @@ user_install() {
 
 usb_install() {
 	# Récupérer le nom de la clé USB montée
-	USB_NAME=$(ls /media/"$USERNAME" | head -n 1)
+	USB_NAME=$(ls /media/"$USER" | head -n 1)
 
 	if [ -n "$USB_NAME" ]; then
 	    log_action "Nom de la clé USB détectée : $USB_NAME"
@@ -80,7 +80,7 @@ usb_install() {
 	    exit 1
 	fi
 	# Vérifier si l'archive existe
-	BACKUP_ARCHIVE="/media/"$USERNAME"/$USB_NAME/backup.tar.gz"
+	BACKUP_ARCHIVE="/media/"$USER"/$USB_NAME/backup.tar.gz"
 	if [ ! -f "$BACKUP_ARCHIVE" ]; then
 	    log_action "❌ L'archive $BACKUP_ARCHIVE est introuvable !"
 	    exit 1
@@ -89,7 +89,7 @@ usb_install() {
 	echo "Récupération et extraction de l'archive USB"
 	# Répertoires archivés en ne mettant PAS le / devant.
 	tar -xvzf "$BACKUP_ARCHIVE" -C / \
-	    "home/"$USERNAME"/Documents" \
+	    "home/"$USER"/Documents" \
 	    "etc/default/keyboard" \
 	    "etc/ssh/sshd_config" \
 	    "var/www/html" \
@@ -113,10 +113,10 @@ usb_install() {
 	    "etc/motd" \
 	    "etc/clamav/clamd.conf" \
 	    "etc/clamav/freshclam.conf" \
-	    "home/"$USERNAME"/scriptBackup" \
-	    "home/"$USERNAME"/exeBackup.sh" \
-	    "home/"$USERNAME"/.bashrc" \
-	    "home/"$USERNAME"/.bash_history"
+	    "home/"$USER"/scriptBackup" \
+	    "home/"$USER"/exeBackup.sh" \
+	    "home/"$USER"/.bashrc" \
+	    "home/"$USER"/.bash_history"
 	log_action "Les repertoires /etc sont installés ✅️\n"
 	echo "Les repertoires /etc sont installés ✅️\n"
 
@@ -363,7 +363,7 @@ php_install() {
 	sudo a2enmod proxy_fcgi
 	sudo a2enconf php8.4-fpm
 	sudo a2enmod evasive
-	sudo chown -R "$USERNAME":www-data /var/www/html/
+	sudo chown -R "$USER":www-data /var/www/html/
 
 	sudo systemctl restart apache2
 	log_action "Service apache2 sont redemarrés ✅️\n"
@@ -422,7 +422,7 @@ logwatch_install() {
 }
 
 nextcloud_install() {
-	cd /home/"$USERNAME"
+	cd /home/"$USER"
 	wget https://download.nextcloud.com/server/releases/latest.zip
 	wget https://download.nextcloud.com/server/releases/latest.zip.sha256
 	# Vérifier l'intégrité du fichier téléchargé
@@ -438,15 +438,15 @@ nextcloud_install() {
 	sudo cp -rv latest /var/www/html/
 	mv latest nextcloud
 	sudo chown www-data:www-data /var/www/html/nextcloud/ -Rv
-	tar -xvzf "$BACKUP_ARCHIVE" -C / "home/"$USERNAME"/datanextcloud" "var/www/html/nextcloud/config/config.php"
-	sudo chown www-data:www-data /home/"$USERNAME"/datanextcloud
+	tar -xvzf "$BACKUP_ARCHIVE" -C / "home/"$USER"/datanextcloud" "var/www/html/nextcloud/config/config.php"
+	sudo chown www-data:www-data /home/"$USER"/datanextcloud
 	sudo chown www-data:www-data var/www/html/nextcloud/config/config.php
 	log_action "Nextcloud Installé ✅️\n"
 	echo "Nextcloud Installé ✅️\n"
 }
 
 certbot_install() {
-	cd /home/"$USERNAME" && wget https://dl.eff.org/certbot-auto
+	cd /home/"$USER" && wget https://dl.eff.org/certbot-auto
 	sudo chmod a+x certbot-auto
 	sudo ./certbot-auto
 	sudo certbot renew --rsa-key-size 4096 --force-renewal
@@ -462,8 +462,8 @@ clamav_install() {
 }
 
 automysqlbackup_install() {
-	mkdir /home/"$USERNAME"/automysqlbackup
-	sudo cp /media/"$USERNAME"/$USB_NAME/automysqlbackup/ /home/"$USERNAME"/automysqlbackup/
+	mkdir /home/"$USER"/automysqlbackup
+	sudo cp /media/"$USER"/$USB_NAME/automysqlbackup/ /home/"$USER"/automysqlbackup/
 	log_action "AutoMySQLBackup Installé ✅️\n"
 	echo "AutoMySQLBackup Installé ✅️\n"
 }
@@ -530,7 +530,7 @@ phpsysinfo_install() {
 }
 
 rpiclone_install() {
-	cd /home/"$USERNAME" && git clone https://github.com/billw2/rpi-clone.git
+	cd /home/"$USER" && git clone https://github.com/billw2/rpi-clone.git
 	cd rpi-clone
 	sudo cp rpi-clone rpi-clone-setup /usr/local/sbin
 	log_action "RPI Clone installé ✅️\n"
@@ -538,7 +538,7 @@ rpiclone_install() {
 }
 
 logianalyzer_install() {
-	cd /home/"$USERNAME" && git clone https://github.com/renaudgweb/LogIAnalyzer.git
+	cd /home/"$USER" && git clone https://github.com/renaudgweb/LogIAnalyzer.git
 	cd LogIAnalyzer
 	pip install -r requirements.txt
 	read -p "Entrez les chemins des fichiers logs (séparés par des virgules) : " log_files
@@ -571,7 +571,7 @@ After=network.target
 
 [Service]
 User=root
-ExecStart=/usr/bin/python3 /home/"$USERNAME"/LogIAnalyzer/logianalyzer.py
+ExecStart=/usr/bin/python3 /home/"$USER"/LogIAnalyzer/logianalyzer.py
 Restart=always
 
 [Install]
@@ -586,34 +586,34 @@ EOL
 
 crontab_install() {
 	# Obtient le contenu du crontab de l'utilisateur courant s'il existe, sinon crée un fichier vide
-	sudo -u "$USERNAME" crontab -l > crontab_temp 2>/dev/null || touch crontab_temp
+	sudo -u "$USER" crontab -l > crontab_temp 2>/dev/null || touch crontab_temp
 	{
 		echo ""
 		echo "SHELL=/bin/bash"
 
 		echo "# Reboot Notification via Nextcloud Talk"
-		echo "@reboot /home/"$USERNAME"/Documents/nextcloudBot/./reboot.sh"
+		echo "@reboot /home/"$USER"/Documents/nextcloudBot/./reboot.sh"
 
 		echo "# CPU high usage Notification (every 5min)"
-		echo "*/5 * * * * /home/"$USERNAME"/Documents/nextcloudBot/./cpu.sh"
+		echo "*/5 * * * * /home/"$USER"/Documents/nextcloudBot/./cpu.sh"
 
 		echo "# RAM Memory high usage Notification (every 5min)"
-		echo "*/5 * * * * /home/"$USERNAME"/Documents/nextcloudBot/./free.sh"
+		echo "*/5 * * * * /home/"$USER"/Documents/nextcloudBot/./free.sh"
 
 		echo "# Disk space high usage Notification"
-		echo "@daily /home/"$USERNAME"/Documents/nextcloudBot/./disk.sh"
+		echo "@daily /home/"$USER"/Documents/nextcloudBot/./disk.sh"
 
 		echo "# Temperature high usage Notification (every 5min)"
-		echo "*/5 * * * * /home/"$USERNAME"/Documents/nextcloudBot/./temp.sh"
+		echo "*/5 * * * * /home/"$USER"/Documents/nextcloudBot/./temp.sh"
 
 		echo "# Weather NC Talk Bot Notification (All days at 08:35am)"
-		echo "35 8 * * * /home/"$USERNAME"/Documents/nextcloudBot/./weather.sh"
+		echo "35 8 * * * /home/"$USER"/Documents/nextcloudBot/./weather.sh"
 
 		echo "# Random ISS, ChuckNorris, Weather Notification (all Saturday @ random time of 2h after 18h)"
-		echo "0 18 * * 6 sleep \$(( RANDOM \% 7200 )); /home/"$USERNAME"/Documents/nextcloudBot/./random.sh"
+		echo "0 18 * * 6 sleep \$(( RANDOM \% 7200 )); /home/"$USER"/Documents/nextcloudBot/./random.sh"
 	} >> crontab_temp
 	# Installe la nouvelle crontab pour l'utilisateur actuel
-	if sudo -u "$USERNAME" crontab crontab_temp; then
+	if sudo -u "$USER" crontab crontab_temp; then
 		rm crontab_temp
 		log_action "Cron is installed successfully ✔️\n"
 		echo "Cron is installed successfully ✔️\n"
@@ -631,7 +631,7 @@ crontab_install() {
 	# Ajoute les nouvelles lignes à la fin du fichier temporaire
 	{
 		echo "# script de sauvegarde du lundi au dimanche à 05h00"
-		echo "00 05 * * 1-7 /home/"$USERNAME"/exeBackup.sh"
+		echo "00 05 * * 1-7 /home/"$USER"/exeBackup.sh"
 
 		echo "# script de sauvegarde de base de données MariaDB quotidien"
 		echo "00 04 * * 1-7 /usr/sbin/automysqlbackup"
@@ -640,7 +640,7 @@ crontab_install() {
 		echo "@monthly certbot renew --rsa-key-size 4096 --force-renewal"
 
 		echo "# Script affichage Temperature CPU sur TM1637 au redemarrage"
-		echo "@reboot python3 /home/"$USERNAME"/Documents/tm1637/cpuTemp.py"
+		echo "@reboot python3 /home/"$USER"/Documents/tm1637/cpuTemp.py"
 
 		echo "# Disable WiFi"
 		echo "@reboot ifconfig wlan0 down"
@@ -655,7 +655,7 @@ crontab_install() {
 		echo "0 2 * * 1 echo \"yes\" | rpi-clone sdb -v > /var/log/rpi-clone.log 2>&1 && mailx -s \"RPi Clone Log\" "$email_receiver" < /var/log/rpi-clone.log"
 
 		echo "# Nextcloud crontab"
-		echo "*/5 * * * * su -s /bin/sh -c \"php -f /var/www/html/nextcloud/cron.php --define apc.enable_cli=1\" www-data > /home/"$USERNAME"/CRON.txt 2>&1"
+		echo "*/5 * * * * su -s /bin/sh -c \"php -f /var/www/html/nextcloud/cron.php --define apc.enable_cli=1\" www-data > /home/"$USER"/CRON.txt 2>&1"
 	} >> crontab_temp
 	# Installe la nouvelle crontab pour root
 	if sudo crontab -u root crontab_temp; then
