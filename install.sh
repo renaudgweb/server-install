@@ -59,19 +59,13 @@ EOF
 read -p "Entre ton nouvel utilisateur : " USERNAME
 
 user_install() {
-	sudo adduser "$USERNAME"
-	# Créer un fichier temporaire pour les modifications sudoers
-	sudoers_tmp=$(mktemp)
-	# Ajouter la ligne pour l'utilisateur dans le fichier temporaire
-	echo "$USERNAME		ALL=(ALL:ALL) ALL" >> "$sudoers_tmp"
-	# Utiliser visudo pour appliquer les modifications
-	sudo visudo -c -f "$sudoers_tmp" && sudo visudo -q -f "$sudoers_tmp"
-	# Supprimer le fichier temporaire
-	rm -f "$sudoers_tmp"
-
-	sudo su - "$USERNAME"
-	# Supprimer l'utilisateur 'pi' et son répertoire personnel de façon récursive
-	sudo userdel -r pi
+    sudo adduser "$USERNAME"
+    # Ajouter l'utilisateur aux sudoers directement
+    echo "$USERNAME ALL=(ALL) ALL" | sudo tee -a /etc/sudoers.d/"$USERNAME"
+    # Passer sur la session du nouvel utilisateur
+    sudo su - "$USERNAME" -c "bash"
+    # Supprimer l'utilisateur 'pi'
+    sudo userdel -r pi
 	log_action "user pi supprimé ✅️\n"
 	echo "user pi supprimé ✅️\n"
 }
