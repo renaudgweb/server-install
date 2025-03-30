@@ -58,23 +58,42 @@ EOF
 # Ajouter un nouvel utilisateur
 read -p "Entre ton nouvel utilisateur : " USERNAME
 
-# Récupérer le nom de la clé USB montée
-USB_NAME=$(ls /media/"$USERNAME" | head -n 1)
+user_install() {
+	sudo adduser "$USERNAME"
+	# Créer un fichier temporaire pour les modifications sudoers
+	sudoers_tmp=$(mktemp)
+	# Ajouter la ligne pour l'utilisateur dans le fichier temporaire
+	echo "$USERNAME		ALL=(ALL:ALL) ALL" >> "$sudoers_tmp"
+	# Utiliser visudo pour appliquer les modifications
+	sudo visudo -c -f "$sudoers_tmp" && sudo visudo -q -f "$sudoers_tmp"
+	# Supprimer le fichier temporaire
+	rm -f "$sudoers_tmp"
 
-if [ -n "$USB_NAME" ]; then
-    log_action "Nom de la clé USB détectée : $USB_NAME"
-else
-    log_action "❌ Aucune clé USB détectée."
-    exit 1
-fi
-# Vérifier si l'archive existe
-BACKUP_ARCHIVE="/media/"$USERNAME"/$USB_NAME/backup.tar.gz"
-if [ ! -f "$BACKUP_ARCHIVE" ]; then
-    log_action "❌ L'archive $BACKUP_ARCHIVE est introuvable !"
-    exit 1
-fi
+	sudo su - "$USERNAME"
+	# Supprimer l'utilisateur 'pi' et son répertoire personnel de façon récursive
+	sudo userdel -r pi
+	log_action "user pi supprimé ✅️\n"
+	echo "user pi supprimé ✅️\n"
+}
 
 usb_install() {
+	# Monter la clé USB
+	sudo mount /dev/sda1 /media/"$USERNAME"
+	# Récupérer le nom de la clé USB montée
+	USB_NAME=$(ls /media/"$USERNAME" | head -n 1)
+
+	if [ -n "$USB_NAME" ]; then
+	    log_action "Nom de la clé USB détectée : $USB_NAME"
+	else
+	    log_action "❌ Aucune clé USB détectée."
+	    exit 1
+	fi
+	# Vérifier si l'archive existe
+	BACKUP_ARCHIVE="/media/"$USERNAME"/$USB_NAME/backup.tar.gz"
+	if [ ! -f "$BACKUP_ARCHIVE" ]; then
+	    log_action "❌ L'archive $BACKUP_ARCHIVE est introuvable !"
+	    exit 1
+	fi
 	log_action "Récupération et extraction de l'archive USB"
 	echo "Récupération et extraction de l'archive USB"
 	# Répertoires archivés en ne mettant PAS le / devant.
@@ -115,24 +134,6 @@ usb_install() {
 	sudo systemctl restart ssh
 	log_action "modifications pour le keyboard installés ✅️\n"
 	echo "modifications pour le keyboard installés ✅️\n"
-}
-
-user_install() {
-	sudo adduser "$USERNAME"
-	# Créer un fichier temporaire pour les modifications sudoers
-	sudoers_tmp=$(mktemp)
-	# Ajouter la ligne pour l'utilisateur dans le fichier temporaire
-	echo "$USERNAME		ALL=(ALL:ALL) ALL" >> "$sudoers_tmp"
-	# Utiliser visudo pour appliquer les modifications
-	sudo visudo -c -f "$sudoers_tmp" && sudo visudo -q -f "$sudoers_tmp"
-	# Supprimer le fichier temporaire
-	rm -f "$sudoers_tmp"
-
-	sudo su - "$USERNAME"
-	# Supprimer l'utilisateur 'pi' et son répertoire personnel de façon récursive
-	sudo userdel -r pi
-	log_action "user pi supprimé ✅️\n"
-	echo "user pi supprimé ✅️\n"
 }
 
 iptable_install() {
@@ -679,8 +680,8 @@ crontab_install() {
 }
 
 main_install() {
-	usb_install
 	user_install
+	usb_install
 	iptable_install
 	apt_install
 	wiringpi_install
