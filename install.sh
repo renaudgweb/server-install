@@ -61,7 +61,7 @@ read -p "Entre ton nouvel utilisateur : " USERNAME
 user_install() {
     sudo adduser "$USERNAME"
     # Ajouter l'utilisateur aux sudoers directement
-    echo "$USERNAME ALL=(ALL) ALL" | sudo tee -a /etc/sudoers.d/"$USERNAME"
+    echo "$USERNAME ALL=(ALL) ALL" | sudo tee -a /etc/sudoers
     # Passer sur la session du nouvel utilisateur
     sudo su - "$USERNAME" -c "bash"
     # Supprimer l'utilisateur 'pi'
