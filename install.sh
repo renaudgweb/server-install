@@ -8,7 +8,7 @@
 LOGFILE="/var/log/install-server.log"
 log_action() {
     local MESSAGE="$1"
-    echo "$(date '+%Y-%m-%d %H:%M:%S') - $MESSAGE" | tee -a "$LOGFILE"
+    echo "$(date '+%Y-%m-%d %H:%M:%S') - $MESSAGE" | sudo tee -a "$LOGFILE"
     logger "$MESSAGE"
 }
 # Capture toute la sortie du script (optionnel)
@@ -55,24 +55,21 @@ Installation de serveur LAMP    (/var/log/install-server.log)
 
 EOF
 
-# Ajouter un nouvel utilisateur
-read -p "Entre ton nouvel utilisateur : " USERNAME
-
 user_install() {
+	# Ajouter un nouvel utilisateur
+	read -p "Entre ton nouvel utilisateur : " USERNAME
     sudo adduser "$USERNAME"
     # Ajouter l'utilisateur aux sudoers directement
-    echo "$USERNAME ALL=(ALL) ALL" | sudo tee -a /etc/sudoers
+    echo "$USERNAME ALL=(ALL) ALL" | sudo tee -a /etc/sudoers.d/"$USERNAME"
     # Passer sur la session du nouvel utilisateur
     sudo su - "$USERNAME" -c "bash"
     # Supprimer l'utilisateur 'pi'
     sudo userdel -r pi
-	log_action "user pi supprimé ✅️\n"
-	echo "user pi supprimé ✅️\n"
+	log_action "user "$USERNAME" ajouté ✅️\n"
+	echo "user "$USERNAME" ajouté ✅️\n"
 }
 
 usb_install() {
-	# Monter la clé USB
-	sudo mount /dev/sda1 /media/"$USERNAME"
 	# Récupérer le nom de la clé USB montée
 	USB_NAME=$(ls /media/"$USERNAME" | head -n 1)
 
@@ -674,7 +671,7 @@ crontab_install() {
 }
 
 main_install() {
-	user_install
+	#user_install
 	usb_install
 	iptable_install
 	apt_install
