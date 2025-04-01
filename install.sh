@@ -14,6 +14,10 @@ log_action() {
 # Capture toute la sortie du script (optionnel)
 exec > >(tee -a "$LOGFILE") 2>&1
 
+# Monter la clé USB
+sudo mount /dev/sda1 /media/"$USER"/USB
+BACKUP_ARCHIVE="/media/"$USER"/USB/backup.tar.gz"
+
 # Vérifier si le script est exécuté avec les privilèges root
 # if [ "$(id -u)" -ne 0 ]; then
 # 	log_action "❌ Ce script doit être exécuté avec les privilèges root."
@@ -71,16 +75,14 @@ user_install() {
 
 usb_install() {
 	# Récupérer le nom de la clé USB montée
-	USB_NAME=$(ls /media/"$USER" | head -n 1)
-
-	if [ -n "$USB_NAME" ]; then
-	    log_action "Nom de la clé USB détectée : $USB_NAME"
+	USB_KEY=/media/"$USER"/USB
+	if [ -n "$USB_KEY" ]; then
+	    log_action "Clé USB détectée."
 	else
 	    log_action "❌ Aucune clé USB détectée."
 	    exit 1
 	fi
 	# Vérifier si l'archive existe
-	BACKUP_ARCHIVE="/media/"$USER"/$USB_NAME/backup.tar.gz"
 	if [ ! -f "$BACKUP_ARCHIVE" ]; then
 	    log_action "❌ L'archive $BACKUP_ARCHIVE est introuvable !"
 	    exit 1
