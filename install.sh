@@ -15,7 +15,8 @@ log_action() {
 exec > >(tee -a "$LOGFILE") 2>&1
 
 # Monter la clé USB
-sudo mount /dev/sda1 /media/"$USER"/USB
+sudo mkdir -p /media/"$USER"/USB
+sudo mount -t vfat /dev/sda1 /media/"$USER"/USB
 BACKUP_ARCHIVE="/media/"$USER"/USB/backup.tar.gz"
 
 # Vérifier si le script est exécuté avec les privilèges root
@@ -464,7 +465,7 @@ clamav_install() {
 
 automysqlbackup_install() {
 	mkdir /home/"$USER"/automysqlbackup
-	sudo cp /media/"$USER"/$USB_NAME/automysqlbackup/ /home/"$USER"/automysqlbackup/
+	sudo cp /media/"$USER"/USB/automysqlbackup/ /home/"$USER"/automysqlbackup/
 	log_action "AutoMySQLBackup Installé ✅️\n"
 	echo "AutoMySQLBackup Installé ✅️\n"
 }
