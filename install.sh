@@ -192,7 +192,6 @@ apt_install() {
 		          logwatch \
 		          ntpdate \
 		          redis-server \
-		          git \
 		          build-essential \
 		          python3-pip \
 		          clamav \
