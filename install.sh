@@ -5,7 +5,7 @@
 #
 
 # Déclaration du fichier de log
-LOGFILE="/var/log/install-server.log"
+LOGFILE="/home/"$USER"/install-server.log"
 log_action() {
     local MESSAGE="$1"
     echo "$(date '+%Y-%m-%d %H:%M:%S') - $MESSAGE" | sudo tee -a "$LOGFILE"
@@ -55,7 +55,7 @@ Version : 1.0
 			  \____   )MMMMMM|   .'
 			       `-'       `--'
 
-Installation de serveur LAMP    (/var/log/install-server.log)
+Installation de serveur LAMP    (/home/"$USER"/install-server.log)
 /!\⚠️Bien penser à REBOOT après l'execution de ce script⚠️/!\
 
 EOF
