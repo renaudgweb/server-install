@@ -101,6 +101,7 @@ usb_install() {
 	    "etc/hostname" \
 	    "etc/apache2/apache2.conf" \
 	    "etc/apache2/sites-available" \
+	    "etc/apache2/mods-available/remoteip.conf" \
 	    "etc/pam.d/sshd" \
 	    "etc/ssmtp" \
 	    "etc/fail2ban" \
@@ -354,8 +355,8 @@ php_install() {
 	log_action "Les fichiers php.ini ont été mis à jour avec les nouveaux paramètres."
 	echo "Les fichiers php.ini ont été mis à jour avec les nouveaux paramètres."
 	sudo a2ensite renaud
-	sudo a2enmod ssl
 	sudo a2ensite default-ssl
+	sudo a2enmod ssl
 	sudo a2enmod headers
 	sudo a2enmod env
 	sudo a2enmod dir
@@ -363,8 +364,9 @@ php_install() {
 	sudo a2enmod rewrite
 	sudo a2enmod setenvif
 	sudo a2enmod proxy_fcgi
-	sudo a2enconf php8.4-fpm
+	sudo a2enmod remoteip
 	sudo a2enmod evasive
+	sudo a2enconf php8.4-fpm
 	sudo chown -R "$USER":www-data /var/www/html/
 
 	sudo systemctl restart apache2
