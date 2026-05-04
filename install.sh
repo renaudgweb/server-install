@@ -117,6 +117,9 @@ usb_install() {
 	    "etc/motd" \
 	    "etc/clamav/clamd.conf" \
 	    "etc/clamav/freshclam.conf" \
+	    "etc/nftables.conf" \
+	    "usr/local/bin/update-geoallow.sh" \
+	    "usr/local/bin/nft-safe-reload.sh" \
 	    "home/"$USER"/scriptBackup" \
 	    "home/"$USER"/exeBackup.sh" \
 	    "home/"$USER"/.bashrc" \
@@ -384,6 +387,55 @@ ufw_install() {
 	sudo ufw enable
 	log_action "UFW Installé ✅️\n"
 	echo "UFW Installé ✅️\n"
+}
+
+security_install() {
+	# -------------------------
+	# Mises à jour automatiques
+	# -------------------------
+	sudo apt install unattended-upgrades apt-listchanges -y
+	# Active les mises à jour automatiques sans interaction (remplace le dpkg-reconfigure interactif)
+	echo "unattended-upgrades unattended-upgrades/enable_auto_updates boolean true" | \
+	    sudo debconf-set-selections
+	sudo dpkg-reconfigure -f noninteractive unattended-upgrades
+	log_action "Unattended-upgrades Installé ✅️\n"
+	echo "Unattended-upgrades Installé ✅️\n"
+
+	# --------
+	# nftables
+	# --------
+	sudo apt install nftables -y
+	sudo systemctl enable nftables
+	sudo systemctl start nftables
+	log_action "nftables Installé et démarré ✅️\n"
+	echo "nftables Installé et démarré ✅️\n"
+
+	# --------
+	# CrowdSec
+	# --------
+	curl -s https://install.crowdsec.net | sudo sh
+	sudo apt install crowdsec crowdsec-firewall-bouncer-nftables -y
+	sudo systemctl enable crowdsec
+	sudo systemctl enable crowdsec-firewall-bouncer
+	sudo systemctl start crowdsec
+	sudo systemctl start crowdsec-firewall-bouncer
+	# Collections de règles CrowdSec
+	sudo cscli collections install crowdsecurity/sshd
+	sudo cscli collections install crowdsecurity/apache2
+	sudo systemctl restart crowdsec
+	log_action "CrowdSec Installé ✅️\n"
+	echo "CrowdSec Installé ✅️\n"
+
+	# ---------------------
+	# GeoAllow & nft-reload
+	# ---------------------
+	# Les scripts doivent être présents dans l'archive USB (extraits par usb_install)
+	sudo chmod +x /usr/local/bin/update-geoallow.sh
+	sudo /usr/local/bin/update-geoallow.sh
+	sudo chmod +x /usr/local/bin/nft-safe-reload.sh
+	sudo nft -f /etc/nftables.conf
+	log_action "GeoAllow et nft-safe-reload configurés ✅️\n"
+	echo "GeoAllow et nft-safe-reload configurés ✅️\n"
 }
 
 sendmail_install() {
@@ -660,6 +712,9 @@ crontab_install() {
 
 		echo "# Nextcloud crontab"
 		echo "*/5 * * * * su -s /bin/sh -c \"php -f /var/www/html/nextcloud/cron.php --define apc.enable_cli=1\" www-data > /home/"$USER"/CRON.txt 2>&1"
+
+		echo "# Mise à jour GeoAllow + rechargement nftables tous les lundis à 04h00"
+		echo "0 4 * * 1 /usr/local/bin/update-geoallow.sh && /usr/local/bin/nft-safe-reload.sh"
 	} >> crontab_temp
 	# Installe la nouvelle crontab pour root
 	if sudo crontab -u root crontab_temp; then
@@ -689,6 +744,7 @@ main_install() {
 	fpm_php_install
 	php_install
 	ufw_install
+	security_install
 	sendmail_install
 	fail2ban_install
 	portsentry_install
